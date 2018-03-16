@@ -10,13 +10,13 @@ io.on("connection", client => {
   client.on("subscribeToResults", interval => {
     console.log("client is subscribing to results with interval ", interval);
     setInterval(() => {
-      client.emit("results", scoreResults);
+      client.emit("results", scoreResults.sort(compareScores));
     }, interval);
   });
 
   client.on("showNumberOfPlayers", interval => {
     var srvSockets = io.sockets.sockets;
-    
+
     setInterval(() => {
       client.emit("numberOfPlayer", Object.keys(srvSockets).length);
     }, interval);
@@ -27,7 +27,12 @@ io.on("connection", client => {
     scoreResults.push(msg);
   });
   client.on("error", function() {});
-
 });
 
 server.listen(process.env.PORT || 8021);
+
+function compareScores(a, b) {
+  if (a[0] < b[0]) return 1;
+  if (a[0] > b[0]) return -1;
+  return 0;
+}
