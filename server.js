@@ -1,3 +1,5 @@
+var sessions=[]
+
 var express = require("express"),
   app = express(),
   server = require("http").createServer(app),
@@ -29,20 +31,29 @@ io.on("connection", client => {
 
   client.on("request for default answers", msg => {
     console.log(msg);
-    client.emit('default answers',pickAnswers());
+    client.emit("default answers", pickAnswers());
   });
+  
+  client.on("create session with GUID", (GUID,sessionAnswers) => {
+    console.log(GUID+"created"+sessionAnswers);
+    sessions[GUID]=sessionAnswers;
+  });
+
+  client.on("request session with GUID",GUID=>{
+    console.log(GUID+'request');
+    client.emit('answers for session '+GUID,sessions[GUID]);
+  })
 
   client.on("error", function() {});
 });
 
-server.listen(process.env.PORT || 8000);
+server.listen(process.env.PORT || 8001);
 
 function compareScores(a, b) {
   if (a[0] < b[0]) return 1;
   if (a[0] > b[0]) return -1;
   return 0;
 }
-
 
 const possibleAnswers = [
   "Know-it-all",
@@ -95,7 +106,7 @@ const possibleAnswers = [
 ];
 
 function pickAnswers() {
-    let answers=[];
+  let answers = [];
   while (answers.length < 25) {
     var randomnumber =
       Math.floor(Math.random() * possibleAnswers.length - 1) + 1;
@@ -103,4 +114,6 @@ function pickAnswers() {
     answers[answers.length] = possibleAnswers[randomnumber];
   }
   return answers;
-};
+}
+
+
