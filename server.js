@@ -31,7 +31,7 @@ io.on("connection", client => {
 
   client.on("request for default answers", msg => {
     console.log(msg);
-    client.emit("default answers", pickAnswers());
+    client.emit("default answers", pickAnswers(defaultAnswers));
   });
   
   client.on("create session with GUID", (GUID,sessionAnswers) => {
@@ -41,7 +41,7 @@ io.on("connection", client => {
 
   client.on("request session with GUID",GUID=>{
     console.log(GUID+'request');
-    client.emit('answers for session '+GUID,sessions[GUID]);
+    client.emit('answers for session '+GUID,pickAnswers(sessions[GUID]));
   })
 
   client.on("error", function() {});
@@ -55,7 +55,7 @@ function compareScores(a, b) {
   return 0;
 }
 
-const possibleAnswers = [
+const defaultAnswers = [
   "Know-it-all",
   "Someone is typing",
   "Misuse of words",
@@ -105,7 +105,7 @@ const possibleAnswers = [
   "Backlog mention"
 ];
 
-function pickAnswers() {
+function pickAnswers(possibleAnswers) {
   let answers = [];
   while (answers.length < 25) {
     var randomnumber =
